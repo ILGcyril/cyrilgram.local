@@ -16,10 +16,9 @@ RUN composer install --optimize-autoloader --no-dev --ignore-platform-reqs --no-
 RUN echo "legacy-peer-deps=true" > .npmrc
 RUN npm install --legacy-peer-deps && npm run build
 
-RUN chmod -R 775 storage bootstrap/cache
-RUN chown -R www-www-data storage bootstrap/cache
+# Исправлено: используем www-data вместо www-www-data
+RUN chown -R www-data:www-data storage bootstrap/cache || true
 
-# Запускаем миграции автоматически!
 RUN php artisan migrate --force
 
 EXPOSE 8000
