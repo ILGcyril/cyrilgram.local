@@ -15,22 +15,21 @@ class MessageSent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public Message $message;
+    public $message;
 
     public function __construct(Message $message)
     {
-        $this->message = $message;
+        $this->message = $message->load('user');
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return array<int, Channel>
-     */
-    public function broadcastOn(): array
+    public function broadcastOn()
     {
-        return [
-            new PrivateChannel('room.'.$this->message->room_id),
-        ];
+        // ИЗМЕНИЛ: PrivateChannel вместо PresenceChannel
+        return new PrivateChannel('room.' . $this->message->room_id);
+    }
+    
+    public function broadcastAs()
+    {
+        return 'MessageSent';
     }
 }
