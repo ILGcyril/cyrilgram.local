@@ -85,15 +85,6 @@ window.addEventListener('load', function() {
     const chat = document.querySelector('.space-y-4');
     const form = document.getElementById('chat-form');
     const input = document.getElementById('message');
-    const socketInput = document.getElementById('socket_id');
-
-    // Проверка: существует ли Echo
-    const hasEcho = typeof window.Echo !== 'undefined';
-    
-    if (hasEcho) {
-        // Заполняем socket_id
-        socketInput.value = window.Echo.socketId();
-    }
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -101,20 +92,13 @@ window.addEventListener('load', function() {
         const messageText = input.value;
         if (!messageText.trim()) return;
 
-        const headers = {
-            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-        };
-
-        // Добавляем socket_id только если Echo есть
-        if (hasEcho && socketInput.value) {
-            headers['X-Socket-Id'] = socketInput.value;
-        }
-
         fetch(form.action, {
             method: 'POST',
-            headers: headers,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
             body: JSON.stringify({ message: messageText })
         })
         .then(response => {
@@ -141,21 +125,6 @@ window.addEventListener('load', function() {
         });
     });
 
-    // Подписка на канал только если Echo существует
-    if (hasEcho) {
-        window.Echo.private(`room.{{ $room->id }}`)
-            .listen('MessageSent', (e) => {
-                const div = document.createElement('div');
-                div.classList.add('flex', 'justify-start', 'group', 'mb-4');
-                div.innerHTML = `
-                    <div class="relative max-w-[80%] px-4 py-2 rounded-xl border bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600 rounded-tl-none">
-                        <div class="text-xs font-bold opacity-90 mb-1">${e.message.user.name}</div>
-                        <div class="text-sm">${e.message.content}</div>
-                    </div>
-                `;
-                chat.appendChild(div);
-                chat.scrollTop = chat.scrollHeight;
-            });
-    }
+    // УБРАЛ Echo.subscribe - пока не работает
 });
 </script>
