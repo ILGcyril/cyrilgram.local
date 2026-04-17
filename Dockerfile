@@ -18,9 +18,14 @@ RUN npm install --legacy-peer-deps && npm run build
 
 RUN chown -R www-data storage bootstrap/cache || true
 
-# Запускаем миграции
 RUN php artisan migrate --force
 
+# Очищаем кэш
+RUN php artisan config:cache
+RUN php artisan route:cache
+RUN php artisan view:cache
+
 EXPOSE 8000
+
 ENV PORT=8000
 CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]
