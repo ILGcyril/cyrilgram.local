@@ -89,10 +89,45 @@ window.addEventListener('load', function() {
     const form = document.getElementById('chat-form');
     const input = document.getElementById('message');
 
-    console.log('🔌 Connecting to Pusher...');
+    // Читаем Pusher config из meta-тегов
+    window.pusherConfig = {
+        key: document.querySelector('meta[name="pusher-key"]')?.content,
+        cluster: document.querySelector('meta[name="pusher-cluster"]')?.content,
+        host: document.querySelector('meta[name="pusher-host"]')?.content,
+        port: document.querySelector('meta[name="pusher-port"]')?.content,
+        scheme: document.querySelector('meta[name="pusher-scheme"]')?.content,
+    };
     
-    if (window.Echo) {
-        console.log('✅ Echo exists');
+    console.log('🔌 Pusher config:', window.pusherConfig);
+    
+    // Инициализируем Echo если ещё не инициализирован
+    if (!window.Echo && window.pusherConfig?.key) {
+        console.log('🔄 Initializing Echo...');
+        
+        import('laravel-echo').then(({ default: Echo }) => {
+            import('pusher-js').then(({ default: Pusher }) => {
+                window.Pusher = Pusher;
+                
+                window.Echo = new Echo({
+                    broadcaster: 'pusher',
+                    key: window.pusherConfig.key,
+                    wsHost: window.pusherConfig.host,
+                    wsPort: window.pusherConfig.port ?? 80,
+                    wssPort: window.pusherConfig.port ?? 443,
+                    forceTLS: window.pusherConfig.scheme === 'https',
+                    enabledTransports: ['ws', 'wss'],
+                    cluster: window.pusherConfig.cluster,
+                });
+                
+                setupChannel();
+            });
+        });
+    } else if (window.Echo) {
+        setupChannel();
+    }
+    
+    function setupChannel() {
+        console.log('✅ Echo ready, subscribing...');
         
         window.Echo.private(`room.{{ $room->id }}`)
             .listen('MessageSent', (e) => {

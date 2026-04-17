@@ -5,6 +5,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
+            <!-- Pusher config for JavaScript -->
+        <meta name="pusher-key" content="{{ config('broadcasting.connections.pusher.key') }}">
+        <meta name="pusher-cluster" content="{{ config('broadcasting.connections.pusher.options.cluster') ?? config('pusher.app_cluster') }}">
+        <meta name="pusher-host" content="{{ config('broadcasting.connections.pusher.options.host') }}">
+        <meta name="pusher-port" content="{{ config('broadcasting.connections.pusher.options.port') }}">
+        <meta name="pusher-scheme" content="{{ config('broadcasting.connections.pusher.options.scheme') }}">
+
         <title>{{ config('app.name', 'Laravel') }}</title>
 
         <!-- Fonts -->
