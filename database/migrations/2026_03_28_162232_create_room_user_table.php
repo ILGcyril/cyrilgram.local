@@ -18,6 +18,8 @@ return new class extends Migration
             $table->enum('role', ['owner', 'admin', 'member'])->default('member');
 
             $table->unique(['user_id', 'room_id']);
+
+            $table->timestamps();
         });
     }
 
