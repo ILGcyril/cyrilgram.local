@@ -62,7 +62,7 @@
         </div>
 
         <form id="chat-form" 
-      action="{{ secure_url(route('messages.store', $room)) }}" 
+      action="{{ str_replace('http://', 'https://', route('messages.store', $room)) }}"
       method="POST" 
       class="flex gap-2 border-t dark:border-gray-700 pt-4">
             @csrf
