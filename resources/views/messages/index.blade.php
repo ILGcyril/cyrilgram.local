@@ -61,7 +61,10 @@
         @endforelse
         </div>
 
-        <form id="chat-form" action="{{ str_replace('http://', 'https://', route('messages.store', $room))" method="POST" class="flex gap-2 border-t dark:border-gray-700 pt-4" >
+        <form id="chat-form" 
+      action="{{ secure_url(route('messages.store', $room)) }}" 
+      method="POST" 
+      class="flex gap-2 border-t dark:border-gray-700 pt-4">
             @csrf
             <input type="hidden" name="socket_id" id="socket_id">
             <div class="relative flex-grow">
