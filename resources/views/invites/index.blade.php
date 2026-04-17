@@ -20,7 +20,7 @@
                     <div>
                         @forelse($user->receivedInvites()->get() as $invite)
                             <div class="bg-white dark:bg-gray-700 px-4 py-2 rounded-lg w-fit shadow-sm border border-gray-100 dark:border-gray-600 flex items-center gap-4">
-                                <div class="text-blue-300">Новый инвайт</div>
+                                <div class="text-blue-300">Инвайт в {{ App\Models\Room::where('id', $invite->room_id)->first()->name }}</div>
                                 
                                 <form action="{{ route('invites.accept', $invite) }}" method="POST" class="mb-4">
                                     @csrf
