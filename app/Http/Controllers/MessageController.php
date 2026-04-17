@@ -33,8 +33,8 @@ class MessageController extends Controller
             'content' => $data['message']
         ]);
 
-        $socketId = request('socket_id');
-        broadcast(new MessageSent($message->load('user')))->toOthers($socketId);
+        // $socketId = request('socket_id');
+        // broadcast(new MessageSent($message->load('user')))->toOthers($socketId);
 
         return response()->json(['ok' => true]);
     }
