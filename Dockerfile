@@ -16,16 +16,16 @@ RUN composer install --optimize-autoloader --no-dev --ignore-platform-reqs --no-
 RUN echo "legacy-peer-deps=true" > .npmrc
 RUN npm install --legacy-peer-deps && npm run build
 
+RUN chmod -R 775 storage bootstrap/cache
 RUN chown -R www-data storage bootstrap/cache || true
 
-RUN php artisan migrate --force
+# УБРАЛ миграции отсюда!
 
-# Очищаем кэш
-RUN php artisan config:cache
-RUN php artisan route:cache
-RUN php artisan view:cache
+# Копируем start.sh
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
 EXPOSE 8000
 
-ENV PORT=8000
-CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]
+# Запускаем start.sh вместо artisan
+CMD ["/start.sh"]
