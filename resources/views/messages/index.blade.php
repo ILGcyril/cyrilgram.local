@@ -90,7 +90,7 @@ window.addEventListener('load', function() {
     const input = document.getElementById('message');
 
     form.addEventListener('submit', function(e) {
-        e.preventDefault(); // Теперь это точно сработает для нужной формы
+        e.preventDefault();
         
         const messageText = input.value;
         if (!messageText.trim()) return;
@@ -99,7 +99,6 @@ window.addEventListener('load', function() {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
-                'X-Socket-Id': window.Echo.socketId(),
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },
@@ -110,7 +109,6 @@ window.addEventListener('load', function() {
             return response.json();
         })
         .then(() => {
-            // Отрисовка своего сообщения
             const div = document.createElement('div');
             div.classList.add('flex', 'justify-end', 'group', 'mb-4');
             div.innerHTML = `
@@ -129,18 +127,21 @@ window.addEventListener('load', function() {
         });
     });
 
-    window.Echo.private(`room.{{ $room->id }}`)
-        .listen('MessageSent', (e) => {
-            const div = document.createElement('div');
-            div.classList.add('flex', 'justify-start', 'group', 'mb-4');
-            div.innerHTML = `
-                <div class="relative max-w-[80%] px-4 py-2 rounded-xl border bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600 rounded-tl-none">
-                    <div class="text-xs font-bold opacity-90 mb-1">${e.message.user.name}</div>
-                    <div class="text-sm">${e.message.content}</div>
-                </div>
-            `;
-            chat.appendChild(div);
-            chat.scrollTop = chat.scrollHeight;
-        });
+    // Безопасная подписка на канал
+    if (window.Echo && typeof window.Echo.private === 'function') {
+        window.Echo.private(`room.{{ $room->id }}`)
+            .listen('MessageSent', (e) => {
+                const div = document.createElement('div');
+                div.classList.add('flex', 'justify-start', 'group', 'mb-4');
+                div.innerHTML = `
+                    <div class="relative max-w-[80%] px-4 py-2 rounded-xl border bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600 rounded-tl-none">
+                        <div class="text-xs font-bold opacity-90 mb-1">${e.message.user.name}</div>
+                        <div class="text-sm">${e.message.content}</div>
+                    </div>
+                `;
+                chat.appendChild(div);
+                chat.scrollTop = chat.scrollHeight;
+            });
+    }
 });
 </script>
