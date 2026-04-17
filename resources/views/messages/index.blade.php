@@ -89,16 +89,14 @@ window.addEventListener('load', function() {
     const form = document.getElementById('chat-form');
     const input = document.getElementById('message');
 
-    // Проверка Echo
-    console.log('Echo exists:', typeof window.Echo !== 'undefined');
+    console.log('🔌 Connecting to Pusher...');
     
-    if (window.Echo && typeof window.Echo.private === 'function') {
-        console.log('✅ Echo initialized, socketId:', window.Echo.socketId());
+    if (window.Echo) {
+        console.log('✅ Echo exists');
         
         window.Echo.private(`room.{{ $room->id }}`)
             .listen('MessageSent', (e) => {
-                console.log('📩 Received message from', e.message.user.name);
-                
+                console.log('📩 Received message:', e);
                 const div = document.createElement('div');
                 div.classList.add('flex', 'justify-start', 'group', 'mb-4');
                 div.innerHTML = `
@@ -110,13 +108,12 @@ window.addEventListener('load', function() {
                 chat.appendChild(div);
                 chat.scrollTop = chat.scrollHeight;
             });
-    } else {
-        console.warn('⚠️ Echo not available');
+            
+        console.log('✅ Subscribed to room.{{ $room->id }}');
     }
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();
-        
         const messageText = input.value;
         if (!messageText.trim()) return;
 
