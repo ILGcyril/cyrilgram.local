@@ -113,6 +113,13 @@ window.addEventListener('load', function() {
         // Слушаем событие
         channel.listen('.MessageSent', (e) => {
             console.log('📩 MESSAGE RECEIVED:', e);
+    
+            // НЕ добавляем если это своё сообщение (чтобы не дублировалось)
+            if (parseInt(e.message.user.id) === parseInt({{ auth()->id() }})) {
+            console.log('⏭️ Skipping own message (already displayed)');
+             return;
+            }
+    
             const div = document.createElement('div');
             div.classList.add('flex', 'justify-start', 'group', 'mb-4');
             div.innerHTML = `
