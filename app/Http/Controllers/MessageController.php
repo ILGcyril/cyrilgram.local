@@ -34,8 +34,7 @@ class MessageController extends Controller
             'content' => $data['message']
         ]);
 
-        $socketId = request('socket_id');
-        $broadcast = broadcast(new MessageSent($message->load('user')))->toOthers($socketId);
+        $broadcast = broadcast(new MessageSent($message->load('user')))->toOthers();
     
         Log::info("Broadcasting MessageSent for room {$room->id}");
         
