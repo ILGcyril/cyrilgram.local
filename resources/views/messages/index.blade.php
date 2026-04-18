@@ -90,23 +90,29 @@ window.addEventListener('load', function() {
     const input = document.getElementById('message');
 
     if (window.Echo) {
-        console.log('✅ Echo ready');
+        console.log('✅ Echo initialized');
         
         const channel = window.Echo.private(`room.{{ $room->id }}`);
         
+        // Подключение
         channel.subscribed(() => {
             console.log('✅ SUBSCRIBED to private-room.{{ $room->id }}');
+            console.log('Socket ID:', window.Echo.connector.pusher.connection.socket_id);
         });
         
+        // Ошибка
         channel.error((error) => {
             console.error('❌ Channel error:', error);
         });
         
-        // Слушаем ВСЕ события
+        // Отключение
+        channel.listenForWhisper('disconnect', () => {
+            console.warn('⚠️ Disconnected from channel');
+        });
+        
+        // Слушаем событие
         channel.listen('MessageSent', (e) => {
             console.log('📩 MESSAGE RECEIVED:', e);
-            console.log('Message data:', e.message);
-            
             const div = document.createElement('div');
             div.classList.add('flex', 'justify-start', 'group', 'mb-4');
             div.innerHTML = `
@@ -119,11 +125,26 @@ window.addEventListener('load', function() {
             chat.scrollTop = chat.scrollHeight;
         });
         
-        console.log('👂 Listening for MessageSent events...');
+        console.log('👂 Listening for events...');
+        
+        // Отслеживаем состояние подключения
+        window.Echo.connector.pusher.connection.bind('connected', () => {
+            console.log('✅ Pusher CONNECTED');
+        });
+        
+        window.Echo.connector.pusher.connection.bind('disconnected', () => {
+            console.warn('⚠️ Pusher DISCONNECTED');
+        });
+        
+        window.Echo.connector.pusher.connection.bind('error', (error) => {
+            console.error('❌ Pusher ERROR:', error);
+        });
     }
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();
+        e.stopPropagation();
+        
         const messageText = input.value;
         if (!messageText.trim()) return;
 
@@ -145,7 +166,9 @@ window.addEventListener('load', function() {
             return response.json();
         })
         .then(data => {
-            console.log('✅ Message sent successfully:', data);
+            console.log('✅ Message sent:', data);
+            
+            // Добавляем своё сообщение
             const div = document.createElement('div');
             div.classList.add('flex', 'justify-end', 'group', 'mb-4');
             div.innerHTML = `
@@ -157,6 +180,9 @@ window.addEventListener('load', function() {
             chat.appendChild(div);
             chat.scrollTop = chat.scrollHeight;
             input.value = '';
+            
+            // Проверяем подключение после отправки
+            console.log('Connection state:', window.Echo.connector.pusher.connection.state);
         })
         .catch(error => {
             console.error('❌ Error:', error);

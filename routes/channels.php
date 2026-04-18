@@ -8,6 +8,14 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('room.{roomId}', function ($user, $roomId) {
-    Log::info("Authorizing user {$user->id} for room {$roomId}");
-    return $user->rooms()->where('room_id', $roomId)->exists();
+    // Убедись что пользователь авторизован
+    if (!$user) {
+        Log::info("User not authenticated");
+        return false;
+    }
+    
+    $exists = $user->rooms()->where('room_id', $roomId)->exists();
+    Log::info("User {$user->id} authorized for room {$roomId}: " . ($exists ? 'YES' : 'NO'));
+    
+    return $exists;
 });
