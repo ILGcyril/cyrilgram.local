@@ -111,7 +111,7 @@ window.addEventListener('load', function() {
         });
         
         // Слушаем событие
-        channel.listen('MessageSent', (e) => {
+        channel.listen('.MessageSent', (e) => {
             console.log('📩 MESSAGE RECEIVED:', e);
             const div = document.createElement('div');
             div.classList.add('flex', 'justify-start', 'group', 'mb-4');
