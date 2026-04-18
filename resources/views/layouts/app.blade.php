@@ -13,10 +13,7 @@
 
             <!-- Pusher config for JavaScript -->
             <meta name="pusher-key" content="{{ config('broadcasting.connections.pusher.key') }}">
-        <meta name="pusher-cluster" content="{{ config('broadcasting.connections.pusher.options.cluster') ?? config('pusher.app_cluster') }}">
-        <meta name="pusher-host" content="{{ config('broadcasting.connections.pusher.options.host') }}">
-        <meta name="pusher-port" content="{{ config('broadcasting.connections.pusher.options.port') }}">
-        <meta name="pusher-scheme" content="{{ config('broadcasting.connections.pusher.options.scheme') }}">
+            <meta name="pusher-cluster" content="{{ config('broadcasting.connections.pusher.options.cluster') ?? env('PUSHER_APP_CLUSTER') }}">
         
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])

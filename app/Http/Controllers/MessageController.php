@@ -35,6 +35,8 @@ class MessageController extends Controller
 
         $socketId = request('socket_id');
         broadcast(new MessageSent($message->load('user')))->toOthers($socketId);
+    
+        // broadcast(new MessageSent($message->load('user')))->toOthers();
 
         return response()->json(['ok' => true]);
     }
