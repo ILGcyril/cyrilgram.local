@@ -89,29 +89,39 @@ window.addEventListener('load', function() {
     const form = document.getElementById('chat-form');
     const input = document.getElementById('message');
 
-    // Подписка на канал (если Echo уже инициализирован)
     if (window.Echo) {
         console.log('✅ Echo ready, subscribing to room.{{ $room->id }}');
         
-        window.Echo.private(`room.{{ $room->id }}`)
-            .listen('MessageSent', (e) => {
-                console.log('📩 Received message:', e);
-                const div = document.createElement('div');
-                div.classList.add('flex', 'justify-start', 'group', 'mb-4');
-                div.innerHTML = `
-                    <div class="relative max-w-[80%] px-4 py-2 rounded-xl border bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600 rounded-tl-none">
-                        <div class="text-xs font-bold opacity-90 mb-1">${e.message.user.name}</div>
-                        <div class="text-sm">${e.message.content}</div>
-                    </div>
-                `;
-                chat.appendChild(div);
-                chat.scrollTop = chat.scrollHeight;
-            });
+        const channel = window.Echo.private(`room.{{ $room->id }}`);
+        
+        // Успешная подписка
+        channel.subscribed(() => {
+            console.log('✅ Successfully subscribed to channel!');
+        });
+        
+        // Ошибка подписки
+        channel.error((error) => {
+            console.error('❌ Channel subscription error:', error);
+        });
+        
+        // Слушаем событие
+        channel.listen('MessageSent', (e) => {
+            console.log('📩 Received message:', e);
+            const div = document.createElement('div');
+            div.classList.add('flex', 'justify-start', 'group', 'mb-4');
+            div.innerHTML = `
+                <div class="relative max-w-[80%] px-4 py-2 rounded-xl border bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600 rounded-tl-none">
+                    <div class="text-xs font-bold opacity-90 mb-1">${e.message.user.name}</div>
+                    <div class="text-sm">${e.message.content}</div>
+                </div>
+            `;
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
+        });
     } else {
         console.warn('⚠️ Echo not initialized');
     }
 
-    // Отправка формы
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         const messageText = input.value;

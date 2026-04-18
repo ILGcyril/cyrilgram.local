@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Log;
 use App\Events\MessageSent;
 use App\Http\Requests\StoreMessageRequest;
 use App\Models\Message;
@@ -34,9 +35,11 @@ class MessageController extends Controller
         ]);
 
         $socketId = request('socket_id');
-        broadcast(new MessageSent($message->load('user')))->toOthers($socketId);
+        $broadcast = broadcast(new MessageSent($message->load('user')))->toOthers($socketId);
     
-        // broadcast(new MessageSent($message->load('user')))->toOthers();
+        Log::info("Broadcasting MessageSent for room {$room->id}");
+        
+        Log::info("Broadcast result: " . json_encode($broadcast));
 
         return response()->json(['ok' => true]);
     }
