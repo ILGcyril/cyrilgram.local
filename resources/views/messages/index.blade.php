@@ -90,23 +90,23 @@ window.addEventListener('load', function() {
     const input = document.getElementById('message');
 
     if (window.Echo) {
-        console.log('✅ Echo ready, subscribing to room.{{ $room->id }}');
+        console.log('✅ Echo ready');
         
         const channel = window.Echo.private(`room.{{ $room->id }}`);
         
-        // Успешная подписка
         channel.subscribed(() => {
-            console.log('✅ Successfully subscribed to channel!');
+            console.log('✅ SUBSCRIBED to private-room.{{ $room->id }}');
         });
         
-        // Ошибка подписки
         channel.error((error) => {
-            console.error('❌ Channel subscription error:', error);
+            console.error('❌ Channel error:', error);
         });
         
-        // Слушаем событие
+        // Слушаем ВСЕ события
         channel.listen('MessageSent', (e) => {
-            console.log('📩 Received message:', e);
+            console.log('📩 MESSAGE RECEIVED:', e);
+            console.log('Message data:', e.message);
+            
             const div = document.createElement('div');
             div.classList.add('flex', 'justify-start', 'group', 'mb-4');
             div.innerHTML = `
@@ -118,14 +118,16 @@ window.addEventListener('load', function() {
             chat.appendChild(div);
             chat.scrollTop = chat.scrollHeight;
         });
-    } else {
-        console.warn('⚠️ Echo not initialized');
+        
+        console.log('👂 Listening for MessageSent events...');
     }
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         const messageText = input.value;
         if (!messageText.trim()) return;
+
+        console.log('📤 Sending message:', messageText);
 
         fetch(form.action, {
             method: 'POST',
@@ -138,10 +140,12 @@ window.addEventListener('load', function() {
             body: JSON.stringify({ message: messageText })
         })
         .then(response => {
+            console.log('📥 Response status:', response.status);
             if (!response.ok) throw new Error('Ошибка сервера');
             return response.json();
         })
-        .then(() => {
+        .then(data => {
+            console.log('✅ Message sent successfully:', data);
             const div = document.createElement('div');
             div.classList.add('flex', 'justify-end', 'group', 'mb-4');
             div.innerHTML = `
